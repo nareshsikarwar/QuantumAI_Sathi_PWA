@@ -1,0 +1,38 @@
+let lastBuyPrice = null;
+
+function handleAutoTrade(currentPrice, rsi, macd) {
+  if (tradingType !== 'auto') return;
+
+  if (lastPrice === 0) {
+    lastPrice = currentPrice;
+    return;
+  }
+
+  const priceChange = (currentPrice - lastPrice) / lastPrice;
+
+  // BUY Signal
+  if (priceChange <= BUY_THRESHOLD && balance >= amountPerTrade) {
+    coinHoldings = amountPerTrade / currentPrice;
+    balance -= amountPerTrade;
+    lastBuyPrice = currentPrice;
+    addTradeToHistory('BUY', 'Pending', currentPrice, amountPerTrade, rsi);
+    log(`🟢 BUY at $${currentPrice.toFixed(2)} | RSI: ${rsi}`);
+    speak(`Buy at ${currentPrice}`);
+    lastPrice = currentPrice;
+  }
+
+  // SELL Signal
+  if (priceChange >= SELL_THRESHOLD && coinHoldings > 0 && lastBuyPrice) {
+    const sellAmount = coinHoldings * currentPrice;
+    const result = currentPrice > lastBuyPrice ? 'Profit' : 'Loss';
+    balance += sellAmount;
+    coinHoldings = 0;
+    addTradeToHistory('SELL', result, currentPrice, sellAmount, rsi);
+    updateStrategyReport(result);
+    log(`🔴 SELL at $${currentPrice.toFixed(2)} | Result: ${result} | RSI: ${rsi}`);
+    speak(`Sell at ${currentPrice}, Result ${result}`);
+    lastPrice = currentPrice;
+  }
+
+  updateBalanceUI();
+}

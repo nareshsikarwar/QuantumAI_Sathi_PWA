@@ -1,0 +1,9 @@
+function addTradeHistory(type, profit, amount) {
+  const entry = document.createElement('li');
+  entry.className = profit ? 'history-profit' : 'history-loss';
+  entry.innerHTML = `${type.toUpperCase()} | ${profit ? 'PROFIT' : 'LOSS'} | ₹${amount.toFixed(2)} | ${new Date().toLocaleTimeString()}`;
+  document.getElementById('tradeHistory').prepend(entry);
+  // Limit length
+  const list = document.getElementById('tradeHistory');
+  if(list.children.length > 30) list.removeChild(list.lastChild);
+}

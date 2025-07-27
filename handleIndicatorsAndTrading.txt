@@ -1,0 +1,47 @@
+function handleIndicatorsAndTrading(latestPrice) {
+    const ema5 = calculateEMA(prices,5).slice(-1)[0];
+    const ema10 = calculateEMA(prices,10).slice(-1)[0];
+    const ema20 = calculateEMA(prices,20).slice(-1)[0];
+    const rsi = calculateRSI(prices,14);
+    const rsiPrev = calculateRSI(prices.slice(0,-1),14);
+    const macd = calculateMACD(prices);
+    const macdPrev = calculateMACD(prices.slice(0,-1));
+    const bb = calculateBB(prices,20,2);
+    const adx = calculateADX();
+
+    let signal = "HOLD";
+
+    indicatorsBox.textContent =
+      `EMA5/10/20: ${ema5.toFixed(2)} / ${ema10.toFixed(2)} / ${ema20.toFixed(2)}\n` +
+      `RSI: ${rsi?.toFixed(2) || "--"}  MACD: ${macd?.toFixed(4) || "--"}\n` +
+      `BB Lower/Upper: ${bb.lower?.toFixed(2) || "--"} / ${bb.upper?.toFixed(2) || "--"}  ADX: ${adx}`;
+
+    // ट्रेड खुला है या नहीं चेक करें
+    if(!currentTrade) {
+        if(ema5 > ema10 && ema10 > ema20 &&
+           rsiPrev < 30 && rsi >= 30 &&
+           macdPrev < 0 && macd >= 0 &&
+           latestPrice <= (bb.lower || latestPrice) * 1.01 &&
+           adx > 25) {
+            signal = "BUY SIGNAL";
+            if(aiRunning) openTrade("buy", latestPrice);
+        } else if(ema5 < ema10 && ema10 < ema20 &&
+                  rsiPrev > 70 && rsi <= 70 &&
+                  macdPrev > 0 && macd <= 0 &&
+                  latestPrice >= (bb.upper || latestPrice) * 0.99 &&
+                  adx > 25) {
+            signal = "SELL SIGNAL";
+            if(aiRunning) openTrade("sell", latestPrice);
+        }
+    } else {
+        // SL/TP hit चेक करें
+        if(currentTrade.side === "buy") {
+            if(latestPrice >= currentTrade.tp) closeTrade(true, latestPrice);
+            else if(latestPrice <= currentTrade.sl) closeTrade(false, latestPrice);
+        } else if(currentTrade.side === "sell") {
+            if(latestPrice <= currentTrade.tp) closeTrade(true, latestPrice);
+            else if(latestPrice >= currentTrade.sl) closeTrade(false, latestPrice);
+        }
+    }
+    indicatorsBox.textContent += `\nSignal: ${signal}`;
+}

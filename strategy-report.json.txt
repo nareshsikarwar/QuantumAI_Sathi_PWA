@@ -1,0 +1,64 @@
+const { detectPattern } = require('./candlestick');
+
+let memory = {
+  history: [],
+  correctBias: 0
+};
+
+function decideTrade() {
+  const rsi = Math.random() * 100;
+  const macd = Math.random() * 2 - 1;
+  const price = Math.random() * 100 + 100;
+  const pattern = detectPattern(price - 2, price + 2, price - 5, price + 1);
+  const correction = memory.correctBias;
+
+  let decision = "hold";
+  let reason = [];
+
+  if (rsi < 30 + correction && macd > 0) {
+    decision = "buy";
+    reason.push("RSI Oversold", "MACD Bullish");
+  }
+  if (rsi > 70 - correction && macd < 0) {
+    decision = "sell";
+    reason.push("RSI Overbought", "MACD Bearish");
+  }
+
+  if (pattern !== "None") {
+    reason.push("Pattern: " + pattern);
+    if (pattern === "Hammer") decision = "buy";
+    if (pattern === "Shooting Star") decision = "sell";
+  }
+
+  const confidence = Math.floor(Math.random() * 40 + 60); // 60-100%
+  const risk = confidence > 80 ? "Low" : confidence > 65 ? "Medium" : "High";
+
+  return { decision, confidence, pattern, reason: reason.join(", "), risk };
+}
+
+function updateMemory(result) {
+  memory.history.push(result);
+  if (result.outcome === "loss") memory.correctBias += 2;
+  else memory.correctBias = Math.max(0, memory.correctBias - 1);
+}
+
+function getStrategyResult() {
+  const ai = decideTrade();
+  const outcome = Math.random() > 0.48 ? "profit" : "loss";
+  const amount = Math.floor(Math.random() * 100 + 20);
+
+  const result = {
+    trade: ai.decision,
+    outcome,
+    amount,
+    reason: ai.reason,
+    confidence: ai.confidence,
+    pattern: ai.pattern,
+    risk: ai.risk
+  };
+
+  updateMemory(result);
+  return result;
+}
+
+module.exports = { getStrategyResult };

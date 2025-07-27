@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quantum AI Supreme v2.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🤖 Quantum AI Supreme v2.5 <span class="badge">LIVE</span></h1>
+    <div class="live-indicators-panel" id="indicatorsBox">Loading indicators...</div>
+  </header>
+
+  <div class="main-grid">
+    <section class="left-panel">
+      <div class="balance-box">
+        💰 Balance: ₹<span id="balance">1000.00</span>
+        | ✅ Success: <span id="success">0</span>
+        | ❌ Fail: <span id="fail">0</span>
+        | 🔁 Trades: <span id="trades">0</span>
+        | 📊 Accuracy: <span id="accuracy">0.00</span>%
+      </div>
+
+      <div class="controls-bar">
+        <button onclick="manualTrade('buy')">🟢 Buy</button>
+        <button onclick="manualTrade('sell')">🔴 Sell</button>
+        <button onclick="toggleAI()">
+          <span id="aiStatusLight" class="ai-light off"></span>
+          <span id="aiBtnLabel">AI Off</span>
+        </button>
+        <button onclick="resetBalance()">♻️ Reset</button>
+      </div>
+
+      <div class="trade-amount-row">
+        Trade ₹<input type="number" id="tradeAmount" value="100" min="1" />
+        SL% <input type="number" id="slPercent" value="2" size="2" />
+        TP% <input type="number" id="tpPercent" value="4" size="2" />
+        <br/>
+        Mode: <span id="tradeModeLabel">Demo</span>
+        <button onclick="toggleTradeMode()">Switch</button>
+      </div>
+
+      <div class="coin-selector">
+        Coin:
+        <select id="coinSelect">
+          <option value="btcusdt">BTC/USDT</option>
+          <option value="ethusdt">ETH/USDT</option>
+          <option value="bnbusdt">BNB/USDT</option>
+          <option value="solusdt">SOL/USDT</option>
+          <option value="dogeusdt">DOGE/USDT</option>
+        </select>
+        TF:
+        <select id="tfSelect">
+          <option value="1m">1m</option>
+          <option value="5m">5m</option>
+          <option value="15m">15m</option>
+          <option value="30m">30m</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="center-panel">
+      <div class="price-panel">
+        Live Price: ₹<span id="livePrice">---</span>
+      </div>
+      <div class="chart-card">
+        <canvas id="chart" width="600" height="250"></canvas>
+      </div>
+      <ul class="history-list" id="tradeHistory"></ul>
+    </section>
+  </div>
+
+  <footer>
+    <div id="lastTrade">📌 No trades yet.</div>
+    <div class="note">Powered by Binance Live Feed • AI Logic • Candlestick Patterns</div>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>

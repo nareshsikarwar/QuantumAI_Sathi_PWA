@@ -1,0 +1,13 @@
+if (window.annyang) {
+  const commands = {
+    'start AI': () => toggleAI(),
+    'stop AI': () => { if (aiRunning) toggleAI(); },
+    'buy now': () => manualTrade('buy'),
+    'sell now': () => manualTrade('sell'),
+    'reset balance': resetBalance,
+    'switch mode': toggleTradeMode
+  };
+  annyang.addCommands(commands);
+  annyang.start();
+  console.log("🎤 Voice control active");
+}
