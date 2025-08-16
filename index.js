@@ -70,9 +70,33 @@ function resetBalance() {
   chart.data.labels = []; chart.data.datasets[0].data = []; chart.update();
   updateUI(); lastTrade.textContent = "Balance Reset Done.";
 }
+function placeRealTrade(side, amountInInr) {
+  return fetch('/api/trade', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coin: coin.toUpperCase(), side: side.toUpperCase(), amountInInr })
+  }).then(async (r) => {
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data?.error || 'Trade failed');
+    return data;
+  });
+}
+
+function maybeExecuteRealTrade(side) {
+  if (tradeMode !== 'real') return Promise.resolve(null);
+  const amount = parseFloat(tradeAmountInput.value) || 100;
+  return placeRealTrade(side, amount).catch((err) => {
+    console.warn('Real trade error:', err.message);
+    return null;
+  });
+}
+
 function manualTrade(type) {
   const amount = parseFloat(tradeAmountInput.value);
   if (isNaN(amount) || amount <= 0) return alert("Enter valid trade amount.");
+  if (tradeMode === 'real') {
+    maybeExecuteRealTrade(type);
+  }
   trades++;
   const priceChangePercent = (Math.random() * 4) - 2;
   const amountChange = amount * priceChangePercent / 100;
@@ -188,6 +212,9 @@ function triggerAITrade(side) {
   const amount = parseFloat(tradeAmountInput.value) || 100;
   const sl = parseFloat(document.getElementById("slPercent").value) || 2;
   const tp = parseFloat(document.getElementById("tpPercent").value) || 4;
+  if (tradeMode === 'real') {
+    maybeExecuteRealTrade(side);
+  }
   trades++;
   const profit = Math.random() < 0.9;
   const change = profit ? amount * tp / 100 : -amount * sl / 100;
